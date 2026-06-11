@@ -1,0 +1,172 @@
+기본 구성할 사항은 bedrock에서 claude를 호출하는 경우 claude 및 bedrock에 대한
+default 대시보드를 구성하는 것입니다.
+세부제약사항입니다.
+
+0. 모든 커맨드가 가능하도록 claude.settings를 셋팅하고 크리티컬한 작업이 아닌 경우에는 스스로 approve 합니다.
+1. aws 조직 중앙에서 관리할 수 있어야합니다.
+2. aws 조직은 all feature 활성화가 불가능합니다.
+3. 각 단계는 모두 구성이 가능한지 먼저 검증합니다. 검증은 docs를 우선으로 확인합니다.
+4. 가능하면 cfn이나 쉘 스크립트로 구성할 수 있게 자동화 스크립트나 cfn을 작성합니다. (맨 마지막 단계)
+5. 문서는 https://jaseo-a.gitbook.io/claude-code-on-bedrock/undefined-2 를 먼저 확인하고 다른 폴더를 서칭합니다.
+6. otel 초기 설정은 https://jaseo-a.gitbook.io/claude-code-on-bedrock/opentelemetry 이 docs를 먼저합니다.
+7. 이후 부가적으로 설정하기 좋은 내용은 추가합니다.
+8. 위 문서는 개인의 문서이기에 사용 방법이나 가이드는 md가 아닌 gitbook에 붙여넣을 수 있는 형식으로 작성합니다.
+9. 각 가이드는 이름을 명확하게 하고 순번을 명확하게 정의합니다.
+10. 다음 수집은 https://jaseo-a.gitbook.io/claude-code-on-bedrock/undefined-3 해당 링크를 참고합니다.
+11. 이 과정도 7,8 번 과정을 진행합니다.
+12. 다음 사용자 대시보드는 https://jaseo-a.gitbook.io/claude-code-on-bedrock/undefined-4 링크를 참고합니다.
+13. 위 과정도 7,8 번 과정을 진행합니다.
+14. 다음은 보고서 단계입니다. https://jaseo-a.gitbook.io/claude-code-on-bedrock/undefined-5 링크를 참고합니다.
+15. 위 과정도 7,8 번 과정을 진행합니다.
+16. 5-15번까지는 제공한 docs를 보고 작성하는 과정입니다. github 및 cfn 배포등에 대한 내용은 가이드에 적어주시고 좀 더 빠르게 배포할 수 있는 경우에는 정리합니다.
+
+
+# Claude Code on Bedrock — 전체 구성 자동화 태스크
+
+## 전역 설정 및 제약 조건
+
+### 실행 환경 설정
+- claude.settings를 먼저 수정하여 모든 명령어(bash, 파일 읽기/쓰기, 네트워크 등)를 허용한다.
+- 이후 각 단계에서 위험도가 낮은 작업(조회, 문서 읽기, 파일 생성 등)은 인간 승인 없이 자동으로 진행한다.
+- 위험도가 높은 작업(AWS 리소스 배포, IAM 정책 변경 등)은 실행 전 반드시 사용자에게 확인한다.
+
+### AWS 조직 제약 조건
+- 대상 AWS 조직에서는 All Features 활성화가 불가능하다.
+- 중앙 관리 계정(Management Account) 기준으로 설계한다.
+- 멤버 계정에서 watch가 가능하게 설계합니다.
+
+### 단계 공통 원칙
+1. 각 단계는 실제 구성이 가능한지 먼저 검증한다.
+2. 검증 순서: 공식 AWS 문서 확인 → GitBook 문서 확인 → 웹 검색
+3. 각 단계 완료 후 GitBook에 바로 붙여넣을 수 있는 마크다운 형식으로 가이드를 작성한다.
+4. 가이드 파일명은 `[순번]-[기능명]-guide.md` 형식으로 명확하게 지정한다.
+5. 각 기능의 부가 설정(추천 옵션, 보안 강화, 모니터링 연동 등)을 함께 정리한다.
+6. GitHub Actions 또는 CFN 배포 등 빠른 배포 방법이 있으면 별도로 정리한다.
+
+---
+
+## Phase 0 — 사전 조건 설정
+
+### 0-1. claude.settings 설정
+claude.settings 파일을 열어 아래 권한을 모두 허용하도록 수정한다:
+- Bash 명령어 실행
+- 파일 읽기/쓰기/삭제
+- 네트워크 요청
+- AWS CLI 명령어
+
+크리티컬하지 않은 작업은 auto-approve로 설정한다.
+
+---
+
+## Phase 1 — 문서 수집 및 기준 확립
+
+### 1-1. GitBook 1차 문서 수집
+다음 URL을 순서대로 fetch하여 전체 내용을 읽는다:
+- https://jaseo-a.gitbook.io/claude-code-on-bedrock/undefined-2
+
+읽은 내용을 바탕으로 이 단계에서 구성해야 할 항목 목록을 추출한다.
+
+### 1-2. 구성 가능성 검증
+각 항목이 "All Features 비활성화" 환경의 AWS 조직에서 가능한지 AWS 공식 문서를 기준으로 검증한다.
+불가능한 항목이 있으면 대안을 제시한다.
+
+### 1-3. GitBook 가이드 작성 — 01-setup
+파일명: `01-initial-setup-guide.md`
+구성:
+- 개요 (한 문단)
+- 사전 요구사항
+- 단계별 설정 방법 (번호 목록)
+- AWS 조직 제약 사항 및 대응 방법
+- 부가 설정 추천 항목
+- 빠른 배포 방법 (해당되는 경우)
+
+---
+
+## Phase 2 — OpenTelemetry(OTEL) 초기 설정
+
+### 2-1. GitBook OTEL 문서 수집
+다음 URL을 fetch하여 전체 내용을 읽는다:
+- https://jaseo-a.gitbook.io/claude-code-on-bedrock/opentelemetry
+
+### 2-2. 구성 가능성 검증
+OTEL 설정이 현재 AWS 환경(조직 제약 포함)에서 동작 가능한지 검증한다.
+
+### 2-3. OTEL 구성 실행
+문서를 기반으로 OTEL 초기 설정을 진행한다.
+
+### 2-4. GitBook 가이드 작성 — 02-otel
+파일명: `02-otel-setup-guide.md`
+Phase 1과 동일한 구조로 작성한다.
+추가 항목:
+- 수집 메트릭 항목 목록
+- 알림 임계값 추천 설정
+- 대시보드 연동 방법
+
+---
+
+## Phase 3 — 데이터 수집 파이프라인
+
+### 3-1. GitBook 문서 수집
+다음 URL을 fetch하여 전체 내용을 읽는다:
+- https://jaseo-a.gitbook.io/claude-code-on-bedrock/undefined-3
+
+### 3-2. 구성 가능성 검증 및 실행
+Phase 2와 동일한 방식으로 검증 후 구성한다.
+
+### 3-3. GitBook 가이드 작성 — 03-data-pipeline
+파일명: `03-data-pipeline-guide.md`
+Phase 1과 동일한 구조로 작성한다.
+
+---
+
+## Phase 4 — 사용자 대시보드
+
+### 4-1. GitBook 문서 수집
+다음 URL을 fetch하여 전체 내용을 읽는다:
+- https://jaseo-a.gitbook.io/claude-code-on-bedrock/undefined-4
+
+### 4-2. 구성 가능성 검증 및 실행
+Phase 2와 동일한 방식으로 검증 후 구성한다.
+
+### 4-3. GitBook 가이드 작성 — 04-dashboard
+파일명: `04-user-dashboard-guide.md`
+Phase 1과 동일한 구조로 작성한다.
+
+---
+
+## Phase 5 — 보고서 구성
+
+### 5-1. GitBook 문서 수집
+다음 URL을 fetch하여 전체 내용을 읽는다:
+- https://jaseo-a.gitbook.io/claude-code-on-bedrock/undefined-5
+
+### 5-2. 구성 가능성 검증 및 실행
+Phase 2와 동일한 방식으로 검증 후 구성한다.
+
+### 5-3. GitBook 가이드 작성 — 05-report
+파일명: `05-report-guide.md`
+Phase 1과 동일한 구조로 작성한다.
+
+---
+
+## Phase 6 (최종) — 자동화 스크립트 생성
+
+### 6-1. CFN 템플릿 작성
+Phase 1~5에서 구성한 모든 AWS 리소스를 하나의 CloudFormation 템플릿으로 작성한다.
+- 파라미터: 조직 ID, 관리 계정 ID, 리전, 환경(dev/prod)
+- 출력: 각 리소스의 ARN 및 엔드포인트
+
+### 6-2. 배포 쉘 스크립트 작성
+`deploy.sh` 파일을 작성한다:
+- CFN 스택 배포 및 업데이트 자동화
+- 배포 전 사전 조건 확인(AWS CLI 버전, 권한 등)
+- 배포 후 상태 검증
+
+### 6-3. GitBook 가이드 작성 — 06-automation
+파일명: `06-automation-guide.md`
+내용:
+- 전체 자동화 흐름 다이어그램 (텍스트 형식)
+- CFN 배포 방법
+- 쉘 스크립트 사용 방법
+- GitHub Actions를 통한 CI/CD 연동 방법 (해당되는 경우)
+- 롤백 방법

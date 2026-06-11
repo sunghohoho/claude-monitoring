@@ -1,0 +1,5 @@
+.env
+*.credentials
+node_modules/
+guidance-for-claude-code-with-amazon-bedrock/
+packaged-*.yaml
