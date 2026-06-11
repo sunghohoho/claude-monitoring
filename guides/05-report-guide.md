@@ -43,7 +43,10 @@ aws cloudformation deploy \
   --stack-name claude-code-analytics \
   --capabilities CAPABILITY_IAM \
   --parameter-overrides \
-    DashboardStackName=claude-code-dashboard
+    MetricsLogGroup=/aws/claude-code/metrics \
+    DataRetentionDays=90 \
+    FirehoseBufferInterval=900 \
+    DebugMode=false
 ```
 
 ### 2. 배포 완료 확인

@@ -172,7 +172,10 @@ aws cloudformation deploy \
   --stack-name ${STACK_PREFIX}-analytics \
   --capabilities CAPABILITY_IAM \
   --parameter-overrides \
-    DashboardStackName=${STACK_PREFIX}-dashboard \
+    MetricsLogGroup=/aws/claude-code/metrics \
+    DataRetentionDays=90 \
+    FirehoseBufferInterval=900 \
+    DebugMode=false \
   --region $REGION \
   --no-fail-on-empty-changeset
 

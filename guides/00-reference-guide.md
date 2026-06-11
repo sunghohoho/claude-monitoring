@@ -124,9 +124,12 @@ aws cloudformation deploy \
 
 **파라미터:**
 
-| 파라미터 | 타입 | 설명 | 필수 |
-|---------|------|------|------|
-| DashboardStackName | String | 대시보드 스택 이름 (크로스 스택 참조) | ✅ |
+| 파라미터 | 타입 | 설명 | 기본값 |
+|---------|------|------|--------|
+| MetricsLogGroup | String | CloudWatch Log Group 경로 | `/aws/claude-code/metrics` |
+| DataRetentionDays | Number | S3 보존 기간 (일) | 90 |
+| FirehoseBufferInterval | Number | Firehose 버퍼 간격 (초, 60~900) | 900 |
+| DebugMode | String | Lambda 디버그 로깅 (true/false) | false |
 
 **생성 리소스:**
 
@@ -153,11 +156,12 @@ aws cloudformation deploy \
 
 ```
 otel-collector.yaml  ──→  claude-code-dashboard.yaml  ──→  analytics-pipeline.yaml
-     (독립)                    (독립, 패키징 필요)            (DashboardStackName 참조)
+     (독립)                    (독립, 패키징 필요)            (독립, 로그그룹만 참조)
 ```
 
-- `otel-collector`와 `dashboard`는 서로 독립적으로 배포 가능
-- `analytics-pipeline`은 `dashboard` 스택을 참조하므로 반드시 이후에 배포
+- 세 스택 모두 서로 독립적으로 배포 가능
+- `analytics-pipeline`은 CloudWatch Log Group(`/aws/claude-code/metrics`)이 존재해야 하므로 `otel-collector` 이후 배포 권장
+- `dashboard`는 순서 무관 (CloudWatch 네임스페이스만 참조)
 
 ---
 
